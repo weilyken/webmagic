@@ -3,7 +3,7 @@
     <parent>
         <artifactId>webmagic-parent</artifactId>
         <groupId>us.codecraft</groupId>
-        <version>0.7.3</version>
+        <version>0.9.1</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -11,18 +11,38 @@
 
     <dependencies>
         <dependency>
-            <groupId>us.codecraft</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>webmagic-core</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>us.codecraft</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>webmagic-extension</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.mapdb</groupId>
+            <artifactId>mapdb</artifactId>
+            <version>3.0.10</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+            <version>2.15.2</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-annotations</artifactId>
+            <version>2.15.2</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>2.15.2</version>
         </dependency>
     </dependencies>
 

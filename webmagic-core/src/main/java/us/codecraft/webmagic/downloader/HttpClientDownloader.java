@@ -1,5 +1,11 @@
 package us.codecraft.webmagic.downloader;
 
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -7,6 +13,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import us.codecraft.webmagic.Page;
 import us.codecraft.webmagic.Request;
 import us.codecraft.webmagic.Site;
@@ -16,12 +23,6 @@ import us.codecraft.webmagic.proxy.ProxyProvider;
 import us.codecraft.webmagic.selector.PlainText;
 import us.codecraft.webmagic.utils.CharsetUtils;
 import us.codecraft.webmagic.utils.HttpClientUtils;
-
-import java.io.IOException;
-import java.nio.charset.Charset;
-import java.util.HashMap;
-import java.util.Map;
-
 
 /**
  * The http downloader based on HttpClient.
@@ -38,7 +39,7 @@ public class HttpClientDownloader extends AbstractDownloader {
     private HttpClientGenerator httpClientGenerator = new HttpClientGenerator();
 
     private HttpUriRequestConverter httpUriRequestConverter = new HttpUriRequestConverter();
-    
+
     private ProxyProvider proxyProvider;
 
     private boolean responseHeader = true;
@@ -76,18 +77,22 @@ public class HttpClientDownloader extends AbstractDownloader {
         }
         CloseableHttpResponse httpResponse = null;
         CloseableHttpClient httpClient = getHttpClient(task.getSite());
-        Proxy proxy = proxyProvider != null ? proxyProvider.getProxy(task) : null;
+        Proxy proxy = proxyProvider != null ? proxyProvider.getProxy(request, task) : null;
         HttpClientRequestContext requestContext = httpUriRequestConverter.convert(request, task.getSite(), proxy);
         Page page = Page.fail();
         try {
             httpResponse = httpClient.execute(requestContext.getHttpUriRequest(), requestContext.getHttpClientContext());
             page = handleResponse(request, request.getCharset() != null ? request.getCharset() : task.getSite().getCharset(), httpResponse, task);
-            onSuccess(request);
+
+            onSuccess(request, task);
             logger.info("downloading page success {}", request.getUrl());
+
             return page;
         } catch (IOException e) {
-            logger.warn("download page {} error", request.getUrl(), e);
-            onError(request);
+
+            onError(request, task, e);
+            logger.info("download page {} error", request.getUrl(), e);
+
             return page;
         } finally {
             if (httpResponse != null) {
@@ -110,9 +115,9 @@ public class HttpClientDownloader extends AbstractDownloader {
         String contentType = httpResponse.getEntity().getContentType() == null ? "" : httpResponse.getEntity().getContentType().getValue();
         Page page = new Page();
         page.setBytes(bytes);
-        if (!request.isBinaryContent()){
+        if (!request.isBinaryContent()) {
             if (charset == null) {
-                charset = getHtmlCharset(contentType, bytes);
+                charset = getHtmlCharset(contentType, bytes, task);
             }
             page.setCharset(charset);
             page.setRawText(new String(bytes, charset));
@@ -127,11 +132,11 @@ public class HttpClientDownloader extends AbstractDownloader {
         return page;
     }
 
-    private String getHtmlCharset(String contentType, byte[] contentBytes) throws IOException {
+    private String getHtmlCharset(String contentType, byte[] contentBytes, Task task) throws IOException {
         String charset = CharsetUtils.detectCharset(contentType, contentBytes);
         if (charset == null) {
-            charset = Charset.defaultCharset().name();
-            logger.warn("Charset autodetect failed, use {} as charset. Please specify charset in Site.setCharset()", Charset.defaultCharset());
+            charset = Optional.ofNullable(task.getSite().getDefaultCharset()).orElseGet(Charset.defaultCharset()::name);
+            logger.info("Charset autodetect failed, use {} as charset.", task.getSite().getDefaultCharset());
         }
         return charset;
     }

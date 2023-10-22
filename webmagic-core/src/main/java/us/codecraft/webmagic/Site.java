@@ -1,8 +1,13 @@
 package us.codecraft.webmagic;
 
-import us.codecraft.webmagic.utils.HttpConstant;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 
-import java.util.*;
+import us.codecraft.webmagic.utils.HttpConstant;
 
 /**
  * Object contains setting for crawler.<br>
@@ -22,6 +27,8 @@ public class Site {
     private Map<String, Map<String, String>> cookies = new HashMap<String, Map<String, String>>();
 
     private String charset;
+
+    private String defaultCharset;
 
     private int sleepTime = 5000;
 
@@ -163,6 +170,30 @@ public class Site {
         return charset;
     }
 
+    /**
+     * Set default charset of page.
+     *
+     * When charset detect failed, use this default charset.
+     *
+     * @param defaultCharset the default charset
+     * @return this
+     * @since 0.9.0
+     */
+    public Site setDefaultCharset(String defaultCharset) {
+        this.defaultCharset = defaultCharset;
+        return this;
+    }
+
+    /**
+     * The default charset if charset detected failed.
+     *
+     * @return the defulat charset
+     * @since 0.9.0
+     */
+    public String getDefaultCharset() {
+        return defaultCharset;
+    }
+
     public int getTimeOut() {
         return timeOut;
     }
@@ -203,7 +234,7 @@ public class Site {
 
     /**
      * Set the interval between the processing of two pages.<br>
-     * Time unit is micro seconds.<br>
+     * Time unit is milliseconds.<br>
      *
      * @param sleepTime sleepTime
      * @return this
@@ -215,7 +246,7 @@ public class Site {
 
     /**
      * Get the interval between the processing of two pages.<br>
-     * Time unit is micro seconds.<br>
+     * Time unit is milliseconds.<br>
      *
      * @return the interval between the processing of two pages,
      */

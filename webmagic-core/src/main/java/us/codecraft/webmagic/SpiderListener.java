@@ -8,7 +8,17 @@ package us.codecraft.webmagic;
  */
 public interface SpiderListener {
 
-    public void onSuccess(Request request);
+    void onSuccess(Request request);
 
-    public void onError(Request request);
+    /**
+     * @deprecated Use {@link #onError(Request, Exception)} instead.
+     */
+    @Deprecated
+    default void onError(Request request) {
+    }
+
+    default void onError(Request request, Exception e) {
+        this.onError(request);
+    }
+
 }

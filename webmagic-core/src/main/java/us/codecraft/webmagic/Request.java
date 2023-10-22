@@ -1,5 +1,6 @@
 package us.codecraft.webmagic;
 
+import us.codecraft.webmagic.downloader.Downloader;
 import us.codecraft.webmagic.model.HttpRequestBody;
 import us.codecraft.webmagic.utils.Experimental;
 
@@ -25,6 +26,11 @@ public class Request implements Serializable {
     private String method;
 
     private HttpRequestBody requestBody;
+
+    /**
+     * this req use this downloader
+     */
+    private Downloader downloader;
 
     /**
      * Store additional information in extras.
@@ -78,14 +84,15 @@ public class Request implements Serializable {
         return this;
     }
 
-    public Object getExtra(String key) {
+    @SuppressWarnings("unchecked")
+    public <T> T getExtra(String key) {
         if (extras == null) {
             return null;
         }
-        return extras.get(key);
+        return (T) extras.get(key);
     }
 
-    public Request putExtra(String key, Object value) {
+    public <T> Request putExtra(String key, T value) {
         if (extras == null) {
             extras = new HashMap<String, Object>();
         }
@@ -172,6 +179,14 @@ public class Request implements Serializable {
 
     public boolean isBinaryContent() {
         return binaryContent;
+    }
+
+    public Downloader getDownloader() {
+        return downloader;
+    }
+
+    public void setDownloader(Downloader downloader) {
+        this.downloader = downloader;
     }
 
     public Request setBinaryContent(boolean binaryContent) {
